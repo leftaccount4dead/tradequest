@@ -1,6 +1,8 @@
 import type { Candle, ChartTimeframe } from "../types";
 import { TIMEFRAME_MINUTES } from "../types";
 
+import { PRICE_BAND_PCT } from "./price-model";
+
 export const CANDLE_PERIOD_MS = 60_000; // 1-minute base candles
 
 export function getSpread(price: number): number {
@@ -78,8 +80,8 @@ export function aggregateCandles(candles: Candle[], timeframe: ChartTimeframe): 
 }
 
 function clampCandle(c: Candle, anchor: number): Candle {
-  const lo = anchor * 0.88;
-  const hi = anchor * 1.12;
+  const lo = anchor * (1 - PRICE_BAND_PCT);
+  const hi = anchor * (1 + PRICE_BAND_PCT);
   const clamp = (v: number) => Math.min(hi, Math.max(lo, v));
   return {
     ...c,
@@ -91,7 +93,7 @@ function clampCandle(c: Candle, anchor: number): Candle {
 }
 
 /** Keep a single bar's range realistic (prevents one-minute mega-candles). */
-export function repairCandleOHLC(c: Candle, anchor: number, maxBarPct = 0.035): Candle {
+export function repairCandleOHLC(c: Candle, anchor: number, maxBarPct = 0.09): Candle {
   const clamped = clampCandle(c, anchor);
   const open = clamped.open;
   const close = clamped.close;

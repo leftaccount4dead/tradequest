@@ -9,14 +9,14 @@ import {
 import { computeNextPrice } from "./price-model";
 
 const STOCK_DEFS = [
-  { symbol: "TECH", name: "TechNova Inc", sector: "Technology", basePrice: 42.5, volatility: 0.025, trend: 0.0002 },
-  { symbol: "BANK", name: "Metro Bank Corp", sector: "Finance", basePrice: 28.8, volatility: 0.018, trend: 0.0001 },
-  { symbol: "ENER", name: "SolarGrid Energy", sector: "Energy", basePrice: 15.2, volatility: 0.032, trend: -0.0001 },
-  { symbol: "HEAL", name: "HealthPlus Pharma", sector: "Healthcare", basePrice: 67.4, volatility: 0.015, trend: 0.00015 },
-  { symbol: "RETL", name: "ShopWave Retail", sector: "Consumer", basePrice: 8.95, volatility: 0.028, trend: 0.00005 },
-  { symbol: "CHIP", name: "MicroChip Systems", sector: "Technology", basePrice: 124.6, volatility: 0.022, trend: 0.0003 },
-  { symbol: "FOOD", name: "FreshFarm Foods", sector: "Consumer", basePrice: 22.3, volatility: 0.012, trend: 0.00008 },
-  { symbol: "AUTO", name: "DriveLine Motors", sector: "Industrial", basePrice: 45.7, volatility: 0.021, trend: -0.00005 },
+  { symbol: "TECH", name: "TechNova Inc", sector: "Technology", basePrice: 42.5, volatility: 0.055, trend: 0.0005 },
+  { symbol: "BANK", name: "Metro Bank Corp", sector: "Finance", basePrice: 28.8, volatility: 0.042, trend: 0.0003 },
+  { symbol: "ENER", name: "SolarGrid Energy", sector: "Energy", basePrice: 15.2, volatility: 0.065, trend: -0.0003 },
+  { symbol: "HEAL", name: "HealthPlus Pharma", sector: "Healthcare", basePrice: 67.4, volatility: 0.038, trend: 0.0004 },
+  { symbol: "RETL", name: "ShopWave Retail", sector: "Consumer", basePrice: 8.95, volatility: 0.058, trend: 0.0002 },
+  { symbol: "CHIP", name: "MicroChip Systems", sector: "Technology", basePrice: 124.6, volatility: 0.048, trend: 0.0006 },
+  { symbol: "FOOD", name: "FreshFarm Foods", sector: "Consumer", basePrice: 22.3, volatility: 0.035, trend: 0.00025 },
+  { symbol: "AUTO", name: "DriveLine Motors", sector: "Industrial", basePrice: 45.7, volatility: 0.05, trend: -0.0002 },
 ];
 
 function generateCandleHistory(
@@ -39,7 +39,7 @@ function generateCandleHistory(
     let close = open;
     let volume = 0;
 
-    const ticksInCandle = 6;
+    const ticksInCandle = 10;
     for (let t = 0; t < ticksInCandle; t++) {
       price = computeNextPrice(price, volatility, trend, anchor);
       close = price;

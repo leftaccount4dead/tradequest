@@ -10,10 +10,16 @@ import {
 import { computeNextPrice, sanitizePrice } from "./price-model";
 
 export function tickStock(stock: Stock): Stock {
+  let trend = stock.trend;
+  if (Math.random() < 0.03) {
+    trend += (Math.random() - 0.5) * 0.0008;
+    trend = Math.max(-0.002, Math.min(0.002, trend));
+  }
+
   let newPrice = computeNextPrice(
     stock.price,
     stock.volatility,
-    stock.trend,
+    trend,
     stock.previousClose,
   );
   newPrice = sanitizePrice(newPrice, stock.previousClose);
@@ -40,6 +46,7 @@ export function tickStock(stock: Stock): Stock {
 
   return {
     ...stock,
+    trend,
     price: newPrice,
     bid,
     ask,
