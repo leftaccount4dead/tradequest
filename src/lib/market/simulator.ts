@@ -1,60 +1,65 @@
 import type { Stock } from "../types";
 import {
-  createCandle,
+  buildTickCandle,
   getBidAsk,
-  periodStartSec,
-  repairCandleOHLC,
-  repairCandleSeries,
-  updateCandle,
+  nextCandleTime,
 } from "./candles";
-import { computeNextPrice, sanitizePrice } from "./price-model";
+import {
+  computeNextPrice,
+  rollMarketShock,
+  sanitizePrice,
+} from "./price-model";
+
+const MAX_CANDLES = 600;
 
 export function tickStock(stock: Stock): Stock {
   let trend = stock.trend;
-  if (Math.random() < 0.03) {
-    trend += (Math.random() - 0.5) * 0.0008;
-    trend = Math.max(-0.002, Math.min(0.002, trend));
+  if (Math.random() < 0.05) {
+    trend += (Math.random() - 0.5) * 0.002;
+    trend = Math.max(-0.006, Math.min(0.006, trend));
   }
 
+  let { shockTicks, shockBias } = rollMarketShock(stock.shockTicks, stock.shockBias);
+  const activeShockBias = shockTicks > 0 ? shockBias : 0;
+
+  const prevPrice = stock.price;
   let newPrice = computeNextPrice(
-    stock.price,
+    prevPrice,
     stock.volatility,
     trend,
     stock.previousClose,
+    { shockBias: activeShockBias },
   );
   newPrice = sanitizePrice(newPrice, stock.previousClose);
 
-  const newVolume = Math.floor(Math.random() * 8000 + 2000);
-  const now = Date.now();
-  const periodSec = periodStartSec(now);
-  const { bid, ask } = getBidAsk(newPrice);
-
-  let candles = stock.candles;
-  let formingCandle = stock.formingCandle;
-
-  if (formingCandle.time !== periodSec) {
-    if (formingCandle.volume > 0 || candles.length === 0) {
-      candles = [...candles.slice(-499), formingCandle];
-    }
-    formingCandle = createCandle(periodSec, newPrice, newVolume);
-  } else {
-    formingCandle = updateCandle(formingCandle, newPrice, newVolume);
+  if (shockTicks > 0) {
+    shockTicks -= 1;
+    if (shockTicks === 0) shockBias = 0;
   }
 
-  formingCandle = repairCandleOHLC(formingCandle, stock.previousClose);
-  candles = repairCandleSeries(candles, stock.previousClose);
+  const newVolume = Math.floor(Math.random() * 5000 + 1000);
+  const candleSeq = stock.candleSeq + 1;
+  const timeSec = nextCandleTime(stock.candleTimeBase, candleSeq);
+
+  const newCandle = buildTickCandle(timeSec, prevPrice, newPrice, newVolume);
+  const allCandles = [...stock.candles, newCandle].slice(-MAX_CANDLES);
+
+  const { bid, ask } = getBidAsk(newPrice);
 
   return {
     ...stock,
     trend,
+    shockTicks,
+    shockBias,
+    candleSeq,
     price: newPrice,
     bid,
     ask,
     dayHigh: Math.max(stock.dayHigh, newPrice),
     dayLow: Math.min(stock.dayLow, newPrice),
     volume: stock.volume + newVolume,
-    candles,
-    formingCandle,
+    candles: allCandles,
+    formingCandle: allCandles[allCandles.length - 1],
   };
 }
 

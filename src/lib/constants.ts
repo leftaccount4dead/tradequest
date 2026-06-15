@@ -14,3 +14,18 @@ export const POSITIONING_BULLETS = [
   "Simulated charts, order book, and portfolio — zero financial risk",
   "Class leaderboard — see how you rank against other learners",
 ] as const;
+
+/** Bump when showing a new what's-new popup to users. */
+export const LATEST_UPDATE_ID = "2025-06-live-charts";
+
+export const LATEST_UPDATE = {
+  title: "What's new in TradeQuest",
+  date: "June 2025",
+  highlights: [
+    "Everyone now starts with $500 virtual cash (old $100 accounts were reset).",
+    "Classroom leaderboard — compete on return % with other learners.",
+    "Live charts — a new candlestick on every price tick so the market feels alive.",
+    "Bigger swings — sharp selloffs and rallies; a bad run can cost real (virtual) dollars on your positions.",
+    "Add to home screen on mobile for a full-screen paper-trading experience.",
+  ],
+};

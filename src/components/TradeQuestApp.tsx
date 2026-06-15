@@ -15,6 +15,7 @@ import { TradeView } from "./TradeView";
 import { GuidesView } from "./GuidesView";
 import { LeaderboardView } from "./LeaderboardView";
 import { CoachFab } from "./CoachFab";
+import { UpdateAnnouncement } from "./UpdateAnnouncement";
 import { TradeQuestLogo } from "./TradeQuestLogo";
 import { STARTING_BALANCE } from "@/lib/constants";
 
@@ -172,6 +173,7 @@ function AppShell() {
       </main>
 
       <CoachFab />
+      <UpdateAnnouncement />
 
       <footer className="relative z-10 border-t border-[var(--border-subtle)] py-3 sm:py-4 px-3 text-center text-[10px] sm:text-xs text-[var(--text-muted)] safe-bottom">
         Simulated market data for educational purposes only. Not financial advice.

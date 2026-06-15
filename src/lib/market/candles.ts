@@ -22,14 +22,28 @@ export function periodStartSec(nowMs: number): number {
 }
 
 export function createCandle(timeSec: number, price: number, volume = 0): Candle {
+  return buildTickCandle(timeSec, price, price, volume);
+}
+
+/** One price tick = one candle (open → close). */
+export function buildTickCandle(
+  timeSec: number,
+  open: number,
+  close: number,
+  volume: number,
+): Candle {
   return {
     time: timeSec,
-    open: price,
-    high: price,
-    low: price,
-    close: price,
+    open: parseFloat(open.toFixed(2)),
+    high: parseFloat(Math.max(open, close).toFixed(2)),
+    low: parseFloat(Math.min(open, close).toFixed(2)),
+    close,
     volume,
   };
+}
+
+export function nextCandleTime(timeBase: number, seq: number): number {
+  return timeBase + seq;
 }
 
 export function updateCandle(candle: Candle, price: number, volume: number): Candle {
@@ -44,18 +58,25 @@ export function updateCandle(candle: Candle, price: number, volume: number): Can
 
 /** All candles including the live forming bar */
 export function getAllCandles(stock: { candles: Candle[]; formingCandle: Candle }): Candle[] {
+  if (stock.candles.length === 0) {
+    return stock.formingCandle ? [stock.formingCandle] : [];
+  }
   const last = stock.candles[stock.candles.length - 1];
-  if (last && last.time === stock.formingCandle.time) {
-    return [...stock.candles.slice(0, -1), stock.formingCandle];
+  if (
+    stock.formingCandle &&
+    last.time === stock.formingCandle.time &&
+    last.close === stock.formingCandle.close
+  ) {
+    return stock.candles;
   }
   return [...stock.candles, stock.formingCandle];
 }
 
 export function aggregateCandles(candles: Candle[], timeframe: ChartTimeframe): Candle[] {
+  if (timeframe === "tick") return candles;
+
   const intervalMin = TIMEFRAME_MINUTES[timeframe];
   const intervalSec = intervalMin * 60;
-
-  if (intervalMin === 1) return candles;
 
   const buckets = new Map<number, Candle>();
 
@@ -92,7 +113,7 @@ function clampCandle(c: Candle, anchor: number): Candle {
   };
 }
 
-/** Keep a single bar's range realistic (prevents one-minute mega-candles). */
+/** Keep a single bar's range realistic (tick bars use a tiny cap). */
 export function repairCandleOHLC(c: Candle, anchor: number, maxBarPct = 0.09): Candle {
   const clamped = clampCandle(c, anchor);
   const open = clamped.open;
@@ -114,13 +135,13 @@ export function repairCandleOHLC(c: Candle, anchor: number, maxBarPct = 0.09): C
   };
 }
 
-export function repairCandleSeries(candles: Candle[], anchor: number): Candle[] {
-  return candles.map((c) => repairCandleOHLC(c, anchor));
+export function repairCandleSeries(candles: Candle[], anchor: number, maxBarPct = 0.09): Candle[] {
+  return candles.map((c) => repairCandleOHLC(c, anchor, maxBarPct));
 }
 
 /** Clamp outlier OHLC values so bad ticks don't blow up the chart scale. */
 export function sanitizeCandlesForDisplay(candles: Candle[], anchorPrice: number): Candle[] {
-  return repairCandleSeries(candles, anchorPrice);
+  return repairCandleSeries(candles, anchorPrice, 0.12);
 }
 
 export function generateOrderBook(

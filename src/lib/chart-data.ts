@@ -1,6 +1,6 @@
 import type { CandlestickData, HistogramData } from "lightweight-charts";
 import type { ChartTimeframe, Stock } from "./types";
-import { aggregateCandles, getAllCandles, sanitizeCandlesForDisplay } from "./market/candles";
+import { aggregateCandles, getAllCandles } from "./market/candles";
 
 export function dedupeCandlestickData(data: CandlestickData[]): CandlestickData[] {
   const map = new Map<number, CandlestickData>();
@@ -15,7 +15,7 @@ export function buildChartSeries(
   stock: Stock,
   timeframe: ChartTimeframe,
 ): { candleData: CandlestickData[]; volumeData: HistogramData[] } {
-  const all = sanitizeCandlesForDisplay(getAllCandles(stock), stock.previousClose);
+  const all = getAllCandles(stock);
   const aggregated = aggregateCandles(all, timeframe);
 
   const candleData = dedupeCandlestickData(

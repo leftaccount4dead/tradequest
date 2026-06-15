@@ -27,15 +27,24 @@ export interface Stock {
   volume: number;
   volatility: number;
   trend: number;
-  /** Completed 1-minute candles */
+  /** Remaining ticks in a sharp selloff/rally burst */
+  shockTicks: number;
+  /** Extra % bias per tick during a shock (negative = selloff) */
+  shockBias: number;
+  /** Sequential candle index — never use wall clock for bar times (prevents chart gaps). */
+  candleSeq: number;
+  /** Unix time for candle at seq 0; bar time = candleTimeBase + candleSeq */
+  candleTimeBase: number;
+  /** Every price tick is one candle; full history kept here */
   candles: Candle[];
-  /** Currently forming 1-minute candle */
+  /** Mirror of the latest candle */
   formingCandle: Candle;
 }
 
-export type ChartTimeframe = "1m" | "5m" | "15m" | "1H" | "1D";
+export type ChartTimeframe = "tick" | "1m" | "5m" | "15m" | "1H" | "1D";
 
 export const TIMEFRAME_MINUTES: Record<ChartTimeframe, number> = {
+  tick: 0,
   "1m": 1,
   "5m": 5,
   "15m": 15,

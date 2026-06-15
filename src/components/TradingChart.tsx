@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { GlassCard } from "./ui/GlassCard";
 import { Minus, Plus, RotateCcw } from "lucide-react";
 
-const TIMEFRAMES: ChartTimeframe[] = ["1m", "5m", "15m", "1H", "1D"];
+const TIMEFRAMES: ChartTimeframe[] = ["tick", "1m", "5m", "15m", "1H", "1D"];
 
 function getChartColors() {
   const isDark = typeof window !== "undefined"
@@ -46,7 +46,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
   const barCountRef = useRef(0);
   const chartReadyRef = useRef(false);
   const followLiveRef = useRef(true);
-  const [timeframe, setTimeframe] = useState<ChartTimeframe>("5m");
+  const [timeframe, setTimeframe] = useState<ChartTimeframe>("tick");
   const [hoverOHLC, setHoverOHLC] = useState<{
     open?: number;
     high?: number;
@@ -61,14 +61,11 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
 
   const seriesKey = `${stock.symbol}-${timeframe}`;
   const liveKey = [
+    stock.candleSeq,
     stock.price,
-    stock.formingCandle.time,
-    stock.formingCandle.open,
-    stock.formingCandle.high,
-    stock.formingCandle.low,
-    stock.formingCandle.close,
-    stock.formingCandle.volume,
     stock.candles.length,
+    stock.formingCandle.time,
+    stock.formingCandle.close,
   ].join("|");
 
   const chartSeries = useMemo(
@@ -112,7 +109,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
       timeScale: {
         borderColor: colors.borderColor,
         timeVisible: true,
-        secondsVisible: timeframe === "1m",
+        secondsVisible: timeframe === "tick" || timeframe === "1m",
         rightOffset: 8,
         barSpacing: 10,
         minBarSpacing: 3,
@@ -209,7 +206,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
     };
   }, [seriesKey, compact]);
 
-  // Live updates: update last bar only (avoids setData errors on every tick)
+  // Live updates: append new bars as they form (keep full history visible)
   useEffect(() => {
     const candleSeries = candleSeriesRef.current;
     const volumeSeries = volumeSeriesRef.current;
@@ -221,17 +218,30 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
     const lastCandle = candleData[candleData.length - 1];
     const lastVol = volumeData[volumeData.length - 1];
     const lastTime = lastCandle.time as number;
+    const prevTime = lastBarTimeRef.current;
+    const prevCount = barCountRef.current;
 
     try {
-      if (lastBarTimeRef.current === lastTime) {
+      if (prevCount === 0) {
+        candleSeries.setData(candleData);
+        volumeSeries.setData(volumeData);
+      } else if (
+        candleData.length > prevCount &&
+        prevTime !== null &&
+        lastTime > prevTime
+      ) {
+        candleSeries.update(lastCandle);
+        if (lastVol) volumeSeries.update(lastVol);
+      } else if (prevTime === lastTime) {
         candleSeries.update(lastCandle);
         if (lastVol) volumeSeries.update(lastVol);
       } else {
         candleSeries.setData(candleData);
         volumeSeries.setData(volumeData);
-        lastBarTimeRef.current = lastTime;
-        barCountRef.current = candleData.length;
       }
+
+      lastBarTimeRef.current = lastTime;
+      barCountRef.current = candleData.length;
 
       if (followLiveRef.current && chartRef.current) {
         chartRef.current.timeScale().scrollToRealTime();
@@ -328,7 +338,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
                   : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]",
               )}
             >
-              {tf}
+              {tf === "tick" ? "Live" : tf}
             </button>
           ))}
         </div>
