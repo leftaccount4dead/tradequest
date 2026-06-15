@@ -21,6 +21,8 @@ import {
 } from "@/lib/market/portfolio";
 import { generateCoachResponse } from "@/lib/coach/coach";
 import { buildCoachMarketContext } from "@/lib/coach/context";
+import { getWelcomeMessage } from "@/lib/game-state";
+import { STARTING_BALANCE } from "@/lib/constants";
 import { apiGet, apiPut, apiPost } from "@/lib/api-client";
 
 interface AppContextValue {
@@ -47,13 +49,7 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-const WELCOME_MESSAGE: CoachMessage = {
-  id: "welcome",
-  role: "coach",
-  content:
-    "Welcome to TradeQuest! I'm your trading coach. I won't tell you what to buy or sell — instead, I'll help you learn to analyze markets and manage risk. Ask me questions, and check the Guides tab for structured lessons. You start with $100 — protect it!",
-  timestamp: Date.now(),
-};
+const WELCOME_MESSAGE = getWelcomeMessage();
 
 async function fetchState(): Promise<UserGameState | null> {
   const { ok, data } = await apiGet<UserGameState>("/api/state");
@@ -76,6 +72,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [tradeError, setTradeError] = useState<string | null>(null);
   const [coachThinking, setCoachThinking] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pricesRef = useRef<Record<string, number>>({});
   const stateRef = useRef<UserGameState>({
     portfolio: createPortfolio(),
     coachMessages: [WELCOME_MESSAGE],
@@ -84,12 +81,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   });
 
   const persistState = useCallback((state: UserGameState) => {
-    stateRef.current = state;
+    const portfolio = {
+      ...state.portfolio,
+      lastReportedValue: getPortfolioValue(state.portfolio, pricesRef.current),
+    };
+    const withValue = { ...state, portfolio };
+    stateRef.current = withValue;
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(async () => {
       setSaving(true);
       try {
-        await saveState(state);
+        await saveState(withValue);
       } finally {
         setSaving(false);
       }
@@ -99,7 +101,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     async function init() {
       try {
-        setStocks(createInitialStocks());
+        const initial = createInitialStocks();
+        const priceMap: Record<string, number> = {};
+        initial.forEach((s) => { priceMap[s.symbol] = s.price; });
+        pricesRef.current = priceMap;
+        setStocks(initial);
         const saved = await fetchState();
         if (saved) {
           setPortfolio(saved.portfolio);
@@ -120,7 +126,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!ready) return;
     const interval = setInterval(() => {
-      setStocks((prev) => tickAllStocks(prev));
+      setStocks((prev) => {
+        const next = tickAllStocks(prev);
+        const map: Record<string, number> = {};
+        next.forEach((s) => { map[s.symbol] = s.price; });
+        pricesRef.current = map;
+        return next;
+      });
     }, 2000);
     return () => clearInterval(interval);
   }, [ready]);
@@ -190,7 +202,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       {
         id: crypto.randomUUID(),
         role: "coach" as const,
-        content: "Account reset! You're back to $100. Take your time, study the guides, and trade smart.",
+        content: `Account reset! You're back to $${STARTING_BALANCE}. Take your time, study the guides, and trade smart.`,
         timestamp: Date.now(),
       },
     ];

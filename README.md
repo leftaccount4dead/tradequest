@@ -1,15 +1,30 @@
 # TradeQuest
 
-A realistic day trading **simulator** for learning. Start with **$100** virtual cash, trade simulated stocks with live-updating prices, study guides, and get coached by an AI that helps you think — not tells you what to buy.
+A realistic day trading **simulator** for learning. Start with **$500** virtual cash, trade simulated stocks with live-updating prices, study guides, compete on the classroom leaderboard, and get coached by an AI that teaches you to think — **never tells you what to buy**.
+
+## Why TradeQuest?
+
+Most paper-trading apps are either generic market simulators (Trading Game, SimTrade) or broker demos with huge default balances. TradeQuest is built for **small-account day trading education**:
+
+- **$500 starting balance** — realistic position sizing without needing a big paper account
+- **AI coach with guardrails** — analyzes your chart and portfolio but refuses trade picks
+- **12 structured guides** — adapted from Markus Heitkoetter's day-trading curriculum (with attribution)
+- **Classroom leaderboard** — rank by return % against other learners
+- **Mobile-friendly + PWA** — trade on phone; add to home screen for a full-screen experience
+- **Focused 8-stock sim** — learn depth on a small watchlist, not noise from hundreds of symbols
+
+**Roadmap:** optional real-market data feeds for chart context (simulated execution stays for safety).
 
 ## Features
 
 - **User accounts** — register/login; portfolio, trades, coach chat, and guide progress saved to your account
 - **Simulated market** — 8 stocks with realistic price movement
-- **$100 starting balance** — learn position sizing and risk
+- **$500 starting balance** — learn position sizing and risk (legacy $100 accounts auto-reset to $500 on login)
 - **Live charts** — prices update every 2 seconds
 - **12 educational guides** — adapted from Markus Heitkoetter's *Complete Guide to Day Trading* (Rockwell Trading), with attribution
-- **AI Coach** — live LLM coach that sees your chart, prices, and portfolio; teaches reasoning, not trade picks
+- **Classroom leaderboard** — top 25 traders ranked by portfolio return %
+- **AI Coach** — live LLM coach (Gemini) that sees your chart, prices, and portfolio; teaches reasoning, not trade picks
+- **Installable PWA** — `manifest.json` for add-to-home-screen on mobile
 
 ## Local development
 

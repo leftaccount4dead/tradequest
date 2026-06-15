@@ -5,6 +5,7 @@
  */
 
 import type { Guide } from "../types";
+import { STARTING_BALANCE } from "../constants";
 
 export const GUIDE_ATTRIBUTION = {
   title: "The Complete Guide to Day Trading",
@@ -13,7 +14,7 @@ export const GUIDE_ATTRIBUTION = {
   year: 2008,
   url: "https://rockwell-files.s3.amazonaws.com/The-Complete-Guide-To-Day-Trading.pdf",
   disclaimer:
-    "TradeQuest lessons are original summaries inspired by the book above, rewritten for our $100 paper-trading simulator. Not affiliated with or endorsed by Rockwell Trading.",
+    `TradeQuest lessons are original summaries inspired by the book above, rewritten for our $${STARTING_BALANCE} paper-trading simulator. Not affiliated with or endorsed by Rockwell Trading.`,
 };
 
 export const GUIDES: Guide[] = [
@@ -30,7 +31,7 @@ Unlike long-term investing, day traders focus on short-term price movement. The 
 Heitkoetter stresses that day trading is a real business: you need a plan, discipline, and education. It is not a get-rich-quick scheme, and it is not guaranteed wealth. With the right tools and knowledge, risk can be reduced — but losses are still part of the job.
 
 **In TradeQuest:**
-- You start with **$100** simulated cash — perfect for learning without real money at risk.
+- You start with **$500** simulated cash — perfect for learning without real money at risk.
 - Prices update every few seconds; you can buy at the **ask** and sell at the **bid**.
 - Use the **Trade** tab chart, order book, and portfolio to practice the full cycle: plan → enter → manage → exit.
 
@@ -42,7 +43,7 @@ Heitkoetter stresses that day trading is a real business: you need a plan, disci
     keyTakeaways: [
       "Day trading is short-term; close positions and avoid overnight gamble",
       "Success comes from a plan and consistency, not one huge trade",
-      "TradeQuest lets you practice entries, exits, and P&L with $100 virtual cash",
+      "TradeQuest lets you practice entries, exits, and P&L with $500 virtual cash",
     ],
   },
   {
@@ -82,10 +83,10 @@ Heitkoetter describes four mindset habits:
 
 Use a **SMART** goal for your learning phase in TradeQuest:
 
-- **Specific** — e.g. "Grow my $100 account to $110" or "Complete 20 practice trades with a written plan."
+- **Specific** — e.g. "Grow my $500 account to $550" or "Complete 20 practice trades with a written plan."
 - **Measurable** — track balance and trade count in your portfolio history.
 - **Attractive** — the goal must motivate you personally.
-- **Realistic** — with $100, 10% growth is a strong month; 1000% is fantasy.
+- **Realistic** — with $500, 10% growth is a strong month; 1000% is fantasy.
 - **Time-bound** — e.g. "over the next two weeks of practice."
 
 **Order matters:** Define what you want first, then build how you will trade — not the reverse.
@@ -99,25 +100,25 @@ Use a **SMART** goal for your learning phase in TradeQuest:
   },
   {
     id: "small-account",
-    title: "Trading Your $100 Account",
+    title: "Trading Your $500 Account",
     category: "Risk Management",
     difficulty: "beginner",
     sourceChapter: "How Much Money Do You Need?",
-    content: `In the real world, minimum account sizes vary by market (stocks, futures, forex). TradeQuest gives everyone the same starting point: **$100** — intentionally small so you learn position sizing early.
+    content: `In the real world, minimum account sizes vary by market (stocks, futures, forex). TradeQuest gives everyone the same starting point: **$500** — intentionally small so you learn position sizing early.
 
 Heitkoetter's rules still apply:
 
 - **Never trade money you cannot afford to lose** — here it is simulated, but treat it seriously.
-- **Only risk a slice of the account per trade** — with $100, think in dollars and percentages.
+- **Only risk a slice of the account per trade** — with $500, think in dollars and percentages.
 - **Start small, grow big** — add size only after consistent process, not after one win.
 
-**Affordability check:** Before buying, look at share price × quantity. A $45 stock with 2 shares costs ~$90 plus spread — that leaves almost no room for error.
+**Affordability check:** Before buying, look at share price × quantity. A $45 stock with 10 shares costs ~$450 plus spread — that leaves little room for error.
 
 **Pick affordable symbols:** TECH, RETL, and ENRG often allow multiple shares. A $120+ symbol may block you from meaningful position size.
 
-**Percentage mindset:** A $2 gain on $100 is 2%. That is a solid learning win. Do not need a "$50 bill" on every trade — small, steady results compound skill.`,
+**Percentage mindset:** A $10 gain on $500 is 2%. That is a solid learning win. Do not need a "$250 bill" on every trade — small, steady results compound skill.`,
     keyTakeaways: [
-      "With $100, position size and share price matter on every trade",
+      "With $500, position size and share price matter on every trade",
       "Risk a small fraction of the account per trade — not the whole balance",
       "Focus on % returns and process, not lottery-sized dollar dreams",
     ],
@@ -142,7 +143,7 @@ Heitkoetter's rules still apply:
     keyTakeaways: [
       "Choose symbols that are moving with clear direction",
       "Avoid choppy, sideways charts when learning trends",
-      "Match share price to your $100 so you can size positions sensibly",
+      "Match share price to your $500 so you can size positions sensibly",
     ],
   },
   {
@@ -187,7 +188,7 @@ If a strategy feels wrong on 5m, try 15m first before rewriting all your rules �
 
 **Keep it simple:** Mistake #1 in the book is overloading the chart with indicators until you cannot see price. Start with trend, levels, and volume on TradeQuest's candlestick chart.
 
-**Bid vs ask:** You buy at the ask (slightly higher) and sell at the bid (slightly lower). The spread is a real cost — especially on a $100 account.
+**Bid vs ask:** You buy at the ask (slightly higher) and sell at the bid (slightly lower). The spread is a real cost — especially on a $500 account.
 
 **Practice:** Mark mentally where today's high, low, and prior candle closes sit. Watch how price reacts at those levels live.`,
     keyTakeaways: [
@@ -233,13 +234,13 @@ Write it in the coach chat if it helps — explaining your thesis builds discipl
     sourceChapter: "Step 5: Defining Exit Points",
     content: `Entries get attention; **exits** determine whether you stay in the game. Heitkoetter covers stop losses, profit targets, trailing stops, partial profits, and time-based exits.
 
-**Stop loss** — predefined max loss per trade. With $100, a wide stop can wipe a huge % of the account. Keep losses small.
+**Stop loss** — predefined max loss per trade. With $500, a wide stop can wipe a huge % of the account. Keep losses small.
 
 **Profit target** — know where you take money off the table. Greed (Mistake #2) is holding for "just a little more" until a winner turns red.
 
 **Trailing stop** — as price moves in your favor, raise your mental stop to lock in gains while giving the trade room.
 
-**Risk/reward** — aim for reward larger than risk (e.g. risk $1 to make $1.50). That way you can profit even with a 50% win rate.
+**Risk/reward** — aim for reward larger than risk (e.g. risk $5 to make $7.50). That way you can profit even with a 50% win rate.
 
 **Time stop** — if the trade goes nowhere for many bars, exit. Capital and attention are limited.
 
@@ -270,7 +271,7 @@ Write it in the coach chat if it helps — explaining your thesis builds discipl
 
 **6. Emotions in control** — Fear, greed, panic, indecision. A plan reduces emotional decisions.
 
-**7. Overtrading** — Too many clicks, too little edge. Quality over quantity, especially on $100.
+**7. Overtrading** — Too many clicks, too little edge. Quality over quantity, especially on $500.
 
 **Simulator advantage:** Review your trade history after each session. Which mistake showed up most?`,
     keyTakeaways: [
@@ -323,7 +324,7 @@ Write it in the coach chat if it helps — explaining your thesis builds discipl
     content: `Heitkoetter compares trading to driving: you learn, practice in a safe environment, then increase speed. **Paper trading** (simulated money) is that parking lot.
 
 TradeQuest **is** your paper account:
-- $100 virtual cash — no real deposit.
+- $500 virtual cash — no real deposit.
 - Realistic bid/ask, order book, and candlesticks.
 - Portfolio and trade history saved to your login.
 

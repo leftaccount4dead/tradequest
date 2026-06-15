@@ -1,4 +1,5 @@
 import type { CoachMessage, Portfolio, Stock } from "../types";
+import { STARTING_BALANCE } from "../constants";
 import { getChange } from "../market/simulator";
 import { getPortfolioValue, getUnrealizedPnL } from "../market/portfolio";
 
@@ -66,7 +67,7 @@ function analyzePortfolio(portfolio: Portfolio, prices: Record<string, number>):
   const unrealized = getUnrealizedPnL(portfolio, prices);
 
   if (portfolio.trades.length === 0) {
-    hints.push("You haven't made any trades yet. Before your first trade, read the Risk Management guide. With $100, protecting your capital is everything.");
+    hints.push(`You haven't made any trades yet. Before your first trade, read the Risk Management guide. With $${STARTING_BALANCE}, protecting your capital is everything.`);
     return hints;
   }
 
@@ -109,9 +110,9 @@ function getEducationalResponse(topic: string): string {
     support: "Support is a price level where buying interest tends to emerge. Think of it as a 'floor' where price bounces. Watch how price reacts when it approaches support — a bounce confirms it, a break below suggests weakness.",
     resistance: "Resistance is where selling pressure tends to appear — a 'ceiling' price struggles to break through. If price keeps rejecting a level, sellers are active there. A clean break above resistance with volume can signal a bullish move.",
     volume: "Volume tells you how many shares are being traded. High volume on a price move suggests conviction. Low volume moves are less reliable. Compare current volume to recent average volume to gauge participation.",
-    stop: "A stop loss is your safety net. Before buying, decide: 'If price drops to $X, I'll sell.' This prevents small losses from becoming account-killing losses. With $100, even a $5 loss is 5% of your account.",
+    stop: `A stop loss is your safety net. Before buying, decide: 'If price drops to $X, I'll sell.' This prevents small losses from becoming account-killing losses. With $${STARTING_BALANCE}, even a $25 loss is 5% of your account.`,
     trend: "Trends show the general direction of price. In an uptrend, look for higher lows. In a downtrend, lower highs. 'The trend is your friend' — trading against the trend requires stronger evidence.",
-    risk: "Risk management is everything. Never risk more than 1-2% of your account per trade. With $100, that's $1-2. Set stop losses. Size positions appropriately. Survival first, profits second.",
+    risk: `Risk management is everything. Never risk more than 1-2% of your account per trade. With $${STARTING_BALANCE}, that's $${STARTING_BALANCE * 0.01}-$${STARTING_BALANCE * 0.02}. Set stop losses. Size positions appropriately. Survival first, profits second.`,
     default: "That's a great question to explore. Instead of giving you a direct answer, let me point you in the right direction: check the Guides section for structured lessons, and try to form your own thesis before trading. What specific aspect are you trying to understand?",
   };
 
@@ -169,7 +170,7 @@ Form your own thesis, then we can discuss whether your reasoning is sound. What 
 export const COACH_SUGGESTIONS = [
   "How do I read this chart?",
   "What is support and resistance?",
-  "How should I manage risk with $100?",
+  `How should I manage risk with $${STARTING_BALANCE}?`,
   "When should I take profits?",
   "What does volume tell me?",
   "Help me analyze my portfolio",

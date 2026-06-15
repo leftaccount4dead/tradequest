@@ -8,8 +8,10 @@ import {
   BookOpen,
   Shield,
   TrendingUp,
+  Trophy,
 } from "lucide-react";
 import { apiPost } from "@/lib/api-client";
+import { STARTING_BALANCE, POSITIONING_BULLETS } from "@/lib/constants";
 import { TradeQuestLogo } from "@/components/TradeQuestLogo";
 
 export default function LoginPage() {
@@ -49,12 +51,10 @@ export default function LoginPage() {
     }
   };
 
-  const features = [
-    { icon: TrendingUp, text: "Realistic simulated markets" },
-    { icon: BookOpen, text: "12 guided trading lessons" },
-    { icon: Bot, text: "AI coach that teaches, not tells" },
-    { icon: Shield, text: "Your progress saved to your account" },
-  ];
+  const features = POSITIONING_BULLETS.map((text, i) => {
+    const icons = [TrendingUp, BookOpen, Bot, Shield, Trophy];
+    return { icon: icons[i] ?? Shield, text };
+  });
 
   return (
     <div className="relative min-h-screen flex">
@@ -74,8 +74,8 @@ export default function LoginPage() {
             <span className="gradient-text">without risking real money.</span>
           </h1>
           <p className="text-lg text-[var(--text-secondary)] max-w-md leading-relaxed">
-            Start with $100 in a realistic simulator. Learn from expert guides and an AI coach
-            that helps you think like a trader.
+            Start with ${STARTING_BALANCE} in a realistic simulator. Learn from expert guides, compete on the
+            classroom leaderboard, and get coached by an AI that teaches — never tells you what to buy.
           </p>
         </div>
 
@@ -111,7 +111,7 @@ export default function LoginPage() {
               <p className="mt-2 text-sm text-[var(--text-secondary)]">
                 {mode === "login"
                   ? "Sign in to continue your trading journey."
-                  : "Start learning with $100 virtual cash."}
+                  : `Start learning with $${STARTING_BALANCE} virtual cash.`}
               </p>
             </div>
 

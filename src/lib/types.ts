@@ -64,6 +64,8 @@ export interface Portfolio {
   trades: Trade[];
   startingBalance: number;
   createdAt: number;
+  /** Mark-to-market value last saved for classroom leaderboard */
+  lastReportedValue?: number;
 }
 
 export interface Guide {

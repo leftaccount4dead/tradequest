@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { createDefaultGameState, parseGameState, serializeGameState } from "@/lib/game-state";
+import {
+  createDefaultGameState,
+  parseGameState,
+  serializeGameState,
+} from "@/lib/game-state";
 import { jsonError, readJsonBody } from "@/lib/api-server";
 import type { UserGameState } from "@/lib/types";
 
@@ -25,14 +29,22 @@ export async function GET() {
       return NextResponse.json(defaultState);
     }
 
-    return NextResponse.json(
-      parseGameState(
-        gameState.portfolioJson,
-        gameState.coachJson,
-        gameState.readGuidesJson,
-        gameState.selectedSymbol,
-      ),
+    const { state, migrated } = parseGameState(
+      gameState.portfolioJson,
+      gameState.coachJson,
+      gameState.readGuidesJson,
+      gameState.selectedSymbol,
     );
+
+    if (migrated) {
+      const serialized = serializeGameState(state);
+      await prisma.gameState.update({
+        where: { userId: session.userId },
+        data: serialized,
+      });
+    }
+
+    return NextResponse.json(state);
   } catch {
     return jsonError("Failed to load state.", 500);
   }
@@ -60,7 +72,7 @@ export async function PUT(request: Request) {
           existing.coachJson,
           existing.readGuidesJson,
           existing.selectedSymbol,
-        )
+        ).state
       : createDefaultGameState();
 
     const merged: UserGameState = {

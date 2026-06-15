@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { STARTING_BALANCE } from "@/lib/constants";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,17 +15,24 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "TradeQuest — Learn Day Trading",
-  description: "A realistic day trading simulator. Start with $100, learn from guides, and practice with an AI coach.",
+  description: `A realistic day trading simulator. Start with $${STARTING_BALANCE}, learn from guides, compete on the leaderboard, and practice with an AI coach that never gives trade picks.`,
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    title: "TradeQuest",
+    statusBarStyle: "black-translucent",
+  },
   icons: {
     icon: "/favicon.ico",
     apple: "/logo.png",
   },
 };
 
-export const viewport = {
+export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#0a0f0d",
 };
 
 export default function RootLayout({

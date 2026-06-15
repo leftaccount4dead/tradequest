@@ -1,7 +1,7 @@
 import type { Portfolio, Position, Trade } from "../types";
 import { safeJsonParse } from "../api-client";
+import { STARTING_BALANCE } from "../constants";
 
-const STARTING_BALANCE = 100;
 const STORAGE_KEY = "tradequest-portfolio";
 
 export function createPortfolio(): Portfolio {

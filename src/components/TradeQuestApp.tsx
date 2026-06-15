@@ -7,15 +7,18 @@ import {
   Cloud,
   LogOut,
   RotateCcw,
+  Trophy,
 } from "lucide-react";
 import { AppProvider, useApp } from "./AppProvider";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import { TradeView } from "./TradeView";
 import { GuidesView } from "./GuidesView";
+import { LeaderboardView } from "./LeaderboardView";
 import { CoachFab } from "./CoachFab";
 import { TradeQuestLogo } from "./TradeQuestLogo";
+import { STARTING_BALANCE } from "@/lib/constants";
 
-type Tab = "trade" | "guides";
+type Tab = "trade" | "guides" | "leaderboard";
 
 function UserAvatar({ name }: { name: string }) {
   const initials = name
@@ -49,7 +52,7 @@ function AppShell() {
             <div className="min-w-0">
               <h1 className="text-base sm:text-lg font-bold tracking-tight truncate">TradeQuest</h1>
               <p className="text-[10px] sm:text-xs text-[var(--text-muted)] hidden sm:block truncate">
-                Paper trading simulator
+                ${STARTING_BALANCE} paper-trading classroom
               </p>
             </div>
           </div>
@@ -87,7 +90,7 @@ function AppShell() {
 
             <button
               onClick={() => {
-                if (confirm("Reset your account back to $100? All trades will be cleared.")) {
+                if (confirm(`Reset your account back to $${STARTING_BALANCE}? All trades will be cleared.`)) {
                   resetAccount();
                 }
               }}
@@ -140,10 +143,11 @@ function AppShell() {
           </div>
         </div>
 
-        <nav className="mx-auto grid max-w-7xl grid-cols-2 gap-2 px-3 pb-2.5 sm:flex sm:px-4 sm:pb-3 lg:px-6">
+        <nav className="mx-auto grid max-w-7xl grid-cols-3 gap-2 px-3 pb-2.5 sm:flex sm:px-4 sm:pb-3 lg:px-6">
           {([
             { id: "trade" as Tab, label: "Trade", icon: ChartLine },
             { id: "guides" as Tab, label: "Guides", icon: BookOpen },
+            { id: "leaderboard" as Tab, label: "Leaderboard", icon: Trophy },
           ]).map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -164,6 +168,7 @@ function AppShell() {
       <main className="relative z-10 mx-auto flex-1 w-full max-w-7xl px-3 py-4 sm:px-4 sm:py-6 lg:px-6">
         {tab === "trade" && <TradeView />}
         {tab === "guides" && <GuidesView />}
+        {tab === "leaderboard" && <LeaderboardView />}
       </main>
 
       <CoachFab />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { STARTING_BALANCE } from "@/lib/constants";
 import { GUIDES, GUIDE_CATEGORIES, GUIDE_ATTRIBUTION } from "@/lib/guides/content";
 import type { Guide } from "@/lib/types";
 import { useApp } from "./AppProvider";
@@ -181,7 +182,7 @@ export function GuidesView() {
           <div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Trading Guides</h2>
             <p className="text-sm text-[var(--text-secondary)] mt-1 max-w-lg">
-              Lessons inspired by Markus Heitkoetter&apos;s day trading guide, adapted for your $100 simulator. {readCount}/{GUIDES.length} completed.
+              Lessons inspired by Markus Heitkoetter&apos;s day trading guide, adapted for your ${STARTING_BALANCE} simulator. {readCount}/{GUIDES.length} completed.
             </p>
           </div>
         </div>
