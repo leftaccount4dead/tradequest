@@ -37,7 +37,7 @@ function getChartColors() {
   };
 }
 
-export function TradingChart({ stock }: { stock: Stock }) {
+export function TradingChart({ stock, compact = false }: { stock: Stock; compact?: boolean }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
@@ -85,9 +85,11 @@ export function TradingChart({ stock }: { stock: Stock }) {
     followLiveRef.current = true;
     const colors = getChartColors();
 
+    const chartHeight = containerRef.current.clientHeight || (compact ? 280 : 420);
+
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
-      height: 420,
+      height: chartHeight,
       layout: {
         background: { type: ColorType.Solid, color: colors.background },
         textColor: colors.textColor,
@@ -186,8 +188,11 @@ export function TradingChart({ stock }: { stock: Stock }) {
     volumeSeriesRef.current = volumeSeries;
 
     const ro = new ResizeObserver(() => {
-      if (containerRef.current) {
-        chart.applyOptions({ width: containerRef.current.clientWidth });
+      if (containerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({
+          width: containerRef.current.clientWidth,
+          height: containerRef.current.clientHeight,
+        });
       }
     });
     ro.observe(containerRef.current);
@@ -202,7 +207,7 @@ export function TradingChart({ stock }: { stock: Stock }) {
       chartReadyRef.current = false;
       lastBarTimeRef.current = null;
     };
-  }, [seriesKey]);
+  }, [seriesKey, compact]);
 
   // Live updates: update last bar only (avoids setData errors on every tick)
   useEffect(() => {
@@ -263,19 +268,19 @@ export function TradingChart({ stock }: { stock: Stock }) {
 
   return (
     <GlassCard padding="none" className="overflow-hidden">
-      <div className="border-b border-[var(--border-subtle)] px-5 py-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-2xl font-bold tracking-tight">{stock.symbol}</h2>
-              <span className="rounded-md bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-2 py-0.5 text-[10px] text-[var(--text-muted)]">
+      <div className="border-b border-[var(--border-subtle)] px-3 py-3 sm:px-5 sm:py-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 mb-0.5">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight">{stock.symbol}</h2>
+              <span className="rounded-md bg-[var(--bg-elevated)] border border-[var(--border-subtle)] px-2 py-0.5 text-[10px] text-[var(--text-muted)] truncate max-w-[8rem]">
                 {stock.sector}
               </span>
             </div>
-            <p className="text-sm text-[var(--text-secondary)]">{stock.name}</p>
+            <p className="text-xs sm:text-sm text-[var(--text-secondary)] truncate">{stock.name}</p>
           </div>
-          <div className="text-right">
-            <p className="font-mono text-3xl font-bold tracking-tight">${stock.price.toFixed(2)}</p>
+          <div className="text-right shrink-0">
+            <p className="font-mono text-2xl sm:text-3xl font-bold tracking-tight">${stock.price.toFixed(2)}</p>
             <p
               className={cn(
                 "font-mono text-sm font-medium mt-1",
@@ -287,7 +292,8 @@ export function TradingChart({ stock }: { stock: Stock }) {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-xs">
+        {!compact && (
+          <div className="mt-3 sm:mt-4 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-xs">
           {[
             { label: "Bid", value: `$${stock.bid.toFixed(2)}`, className: "text-red-600 dark:text-red-400" },
             { label: "Ask", value: `$${stock.ask.toFixed(2)}`, className: "text-emerald-600 dark:text-emerald-400" },
@@ -306,16 +312,17 @@ export function TradingChart({ stock }: { stock: Stock }) {
             </div>
           ))}
         </div>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-2">
-        <div className="flex items-center gap-1">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-2 sm:px-4 py-2 overflow-x-auto">
+        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
           {TIMEFRAMES.map((tf) => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition",
+                "rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition touch-manipulation",
                 timeframe === tf
                   ? "nav-tab-active"
                   : "text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]",
@@ -341,7 +348,13 @@ export function TradingChart({ stock }: { stock: Stock }) {
         </div>
       </div>
 
-      <div ref={containerRef} className="h-[420px] w-full min-w-0 bg-[var(--bg-surface)]" />
+      <div
+        ref={containerRef}
+        className={cn(
+          "w-full min-w-0 bg-[var(--bg-surface)]",
+          compact ? "h-[min(42vh,300px)] sm:h-[340px]" : "h-[min(48vh,360px)] sm:h-[380px] lg:h-[420px]",
+        )}
+      />
     </GlassCard>
   );
 }

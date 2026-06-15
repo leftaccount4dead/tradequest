@@ -172,14 +172,14 @@ export function GuidesView() {
   const readCount = readGuideIds.length;
 
   return (
-    <div>
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div className="pb-16 sm:pb-0">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/10 border border-emerald-500/20">
             <GraduationCap className="h-6 w-6 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Trading Guides</h2>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight">Trading Guides</h2>
             <p className="text-sm text-[var(--text-secondary)] mt-1 max-w-lg">
               Lessons inspired by Markus Heitkoetter&apos;s day trading guide, adapted for your $100 simulator. {readCount}/{GUIDES.length} completed.
             </p>

@@ -47,6 +47,23 @@ body {
   color: var(--text-primary);
   font-family: var(--font-sans), system-ui, sans-serif;
   min-height: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.safe-bottom {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+}
+
+.safe-right {
+  padding-right: max(0.5rem, env(safe-area-inset-right));
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
 }
 
 .app-bg {

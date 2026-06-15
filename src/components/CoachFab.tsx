@@ -47,10 +47,10 @@ export function CoachFab() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[300] flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 z-[300] flex flex-col items-end gap-3 safe-bottom safe-right">
       {open && (
         <div
-          className="w-[min(100vw-2rem,380px)] h-[min(70vh,520px)] flex flex-col rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden"
+          className="w-[calc(100vw-1.5rem)] max-w-[380px] h-[min(72vh,520px)] flex flex-col rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-2xl overflow-hidden"
         >
           <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3 bg-[var(--bg-elevated)]">
             <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export function CoachFab() {
       <button
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-200",
+          "flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 touch-manipulation",
           open
             ? "bg-[var(--bg-elevated)] border border-[var(--border-subtle)]"
             : "bg-violet-600 hover:bg-violet-700 shadow-violet-600/30",

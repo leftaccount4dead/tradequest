@@ -5,8 +5,44 @@ import { getChange } from "@/lib/market/simulator";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "./ui/GlassCard";
 
-export function StockList() {
+export function StockList({ horizontal = false }: { horizontal?: boolean }) {
   const { stocks, selectedSymbol, setSelectedSymbol } = useApp();
+
+  if (horizontal) {
+    return (
+      <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-thin -mx-1 px-1">
+        {stocks.map((stock) => {
+          const { percent } = getChange(stock);
+          const isSelected = stock.symbol === selectedSymbol;
+
+          return (
+            <button
+              key={stock.symbol}
+              type="button"
+              onClick={() => setSelectedSymbol(stock.symbol)}
+              className={cn(
+                "snap-start shrink-0 rounded-xl border px-3 py-2.5 min-w-[5.5rem] text-left transition touch-manipulation",
+                isSelected
+                  ? "border-emerald-500/40 bg-emerald-500/10"
+                  : "border-[var(--border-subtle)] bg-[var(--bg-surface)]",
+              )}
+            >
+              <p className="font-semibold text-sm leading-none">{stock.symbol}</p>
+              <p className="font-mono text-xs mt-1">${stock.price.toFixed(2)}</p>
+              <p
+                className={cn(
+                  "font-mono text-[10px] mt-0.5",
+                  percent >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400",
+                )}
+              >
+                {percent >= 0 ? "+" : ""}{percent.toFixed(2)}%
+              </p>
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <GlassCard padding="sm">
@@ -21,6 +57,7 @@ export function StockList() {
           return (
             <button
               key={stock.symbol}
+              type="button"
               onClick={() => setSelectedSymbol(stock.symbol)}
               className={cn(
                 "w-full rounded-xl px-3 py-3 text-left transition-all duration-200",
