@@ -8,11 +8,13 @@ import { cn } from "@/lib/utils";
 import { GlassCard } from "./ui/GlassCard";
 
 export function OrderPanel() {
-  const { selectedStock, portfolio, buy, sell, tradeError, clearTradeError } = useApp();
+  const { selectedStock, portfolio, buy, sell, setRiskOrder, tradeError, clearTradeError } = useApp();
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [shares, setShares] = useState(1);
   const [success, setSuccess] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [stopLoss, setStopLoss] = useState("");
+  const [takeProfit, setTakeProfit] = useState("");
 
   const position = getPosition(portfolio, selectedStock.symbol);
   const fillPrice = side === "buy" ? selectedStock.ask : selectedStock.bid;
@@ -25,10 +27,24 @@ export function OrderPanel() {
     setSuccess(null);
     clearTradeError();
 
+    const stop = stopLoss ? Number(stopLoss) : undefined;
+    const target = takeProfit ? Number(takeProfit) : undefined;
+    if (side === "buy" && stop !== undefined && (stop <= 0 || stop >= fillPrice)) {
+      setSuccess("Stop loss must be below the entry price.");
+      return;
+    }
+    if (side === "buy" && target !== undefined && (target <= fillPrice)) {
+      setSuccess("Take profit must be above the entry price.");
+      return;
+    }
+
     const error = side === "buy" ? buy(shares) : sell(shares);
     if (!error) {
+      if (side === "buy" && (stop !== undefined || target !== undefined)) {
+        setRiskOrder({ symbol: selectedStock.symbol, shares, stopLoss: stop, takeProfit: target });
+      }
       setSuccess(
-        `${side === "buy" ? "Bought" : "Sold"} ${shares} ${selectedStock.symbol} @ $${fillPrice.toFixed(2)} (market)`,
+        `${side === "buy" ? "Opened" : "Closed"} ${shares} ${selectedStock.symbol} @ $${fillPrice.toFixed(2)} (market)`,
       );
       setTimeout(() => setSuccess(null), 3000);
     }
@@ -60,11 +76,11 @@ export function OrderPanel() {
         </div>
       </div>
 
-      <div className="mb-5 flex gap-2 rounded-xl bg-black/30 p-1 border border-[var(--border-subtle)]">
+      <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl bg-black/30 p-1.5 border border-[var(--border-subtle)]">
         <button
           onClick={() => { setSide("buy"); clearTradeError(); }}
           className={cn(
-            "flex-1 rounded-lg py-2.5 text-sm font-semibold transition",
+            "min-h-14 rounded-lg px-3 py-3 text-sm font-bold leading-tight transition",
             side === "buy"
               ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
               : "text-[var(--text-muted)] hover:text-white",
@@ -75,7 +91,7 @@ export function OrderPanel() {
         <button
           onClick={() => { setSide("sell"); clearTradeError(); }}
           className={cn(
-            "flex-1 rounded-lg py-2.5 text-sm font-semibold transition",
+            "min-h-14 rounded-lg px-3 py-3 text-sm font-bold leading-tight transition",
             side === "sell"
               ? "bg-red-500 text-white shadow-lg shadow-red-500/25"
               : "text-[var(--text-muted)] hover:text-white",
@@ -83,6 +99,27 @@ export function OrderPanel() {
         >
           Close long @ Bid
         </button>
+      </div>
+
+      <div className="mb-5 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-xs font-semibold text-cyan-300">Risk controls</p>
+          <p className="text-[10px] text-[var(--text-muted)]">Checked every 15 seconds</p>
+        </div>
+        {side === "buy" ? (
+          <div className="grid grid-cols-2 gap-2">
+            <label className="text-[10px] text-[var(--text-muted)]">
+              Stop loss
+              <input type="number" min="0.01" step="0.01" placeholder={`Below $${fillPrice.toFixed(2)}`} value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} className="input-field mt-1 w-full rounded-lg px-2.5 py-2 text-xs" />
+            </label>
+            <label className="text-[10px] text-[var(--text-muted)]">
+              Take profit
+              <input type="number" min="0.01" step="0.01" placeholder={`Above $${fillPrice.toFixed(2)}`} value={takeProfit} onChange={(e) => setTakeProfit(e.target.value)} className="input-field mt-1 w-full rounded-lg px-2.5 py-2 text-xs" />
+            </label>
+          </div>
+        ) : (
+          <p className="text-xs leading-relaxed text-[var(--text-secondary)]">Closing this position cancels its saved risk controls.</p>
+        )}
       </div>
 
       <div className="mb-4">

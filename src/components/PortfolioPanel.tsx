@@ -51,6 +51,7 @@ export function PortfolioPanel() {
             const value = pos.shares * currentPrice;
             const pnl = (currentPrice - pos.avgCost) * pos.shares;
             const pnlPercent = ((currentPrice - pos.avgCost) / pos.avgCost) * 100;
+            const riskOrder = portfolio.riskOrders?.find((order) => order.symbol === pos.symbol);
 
             return (
               <div
@@ -72,6 +73,12 @@ export function PortfolioPanel() {
                     {pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} ({pnlPercent >= 0 ? "+" : ""}{pnlPercent.toFixed(1)}%)
                   </span>
                 </div>
+                {riskOrder && (
+                  <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+                    {riskOrder.stopLoss !== undefined && <span className="text-red-400">Stop ${riskOrder.stopLoss.toFixed(2)}</span>}
+                    {riskOrder.takeProfit !== undefined && <span className="text-emerald-400">Target ${riskOrder.takeProfit.toFixed(2)}</span>}
+                  </div>
+                )}
               </div>
             );
           })}

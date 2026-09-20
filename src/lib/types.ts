@@ -67,12 +67,21 @@ export interface Trade {
   timestamp: number;
 }
 
+export interface RiskOrder {
+  id: string;
+  symbol: string;
+  shares: number;
+  stopLoss?: number;
+  takeProfit?: number;
+}
+
 export interface Portfolio {
   cash: number;
   positions: Position[];
   trades: Trade[];
   startingBalance: number;
   createdAt: number;
+  riskOrders?: RiskOrder[];
   /** Mark-to-market value last saved for classroom leaderboard */
   lastReportedValue?: number;
 }

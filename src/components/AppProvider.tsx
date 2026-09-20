@@ -10,13 +10,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { CoachMessage, MarketResponse, Portfolio, Stock, UserGameState } from "@/lib/types";
+import type { CoachMessage, MarketResponse, Portfolio, RiskOrder, Stock, UserGameState } from "@/lib/types";
 import { createInitialStocks } from "@/lib/market/stocks";
 import {
   createPortfolio,
   executeTrade,
   getPortfolioValue,
   getUnrealizedPnL,
+  setRiskOrder as saveRiskOrder,
+  removeRiskOrder,
+  triggerRiskOrders,
 } from "@/lib/market/portfolio";
 import { generateCoachResponse } from "@/lib/coach/coach";
 import { buildCoachMarketContext } from "@/lib/coach/context";
@@ -32,6 +35,8 @@ interface AppContextValue {
   selectedStock: Stock;
   buy: (shares: number) => string | null;
   sell: (shares: number) => string | null;
+  setRiskOrder: (order: Omit<RiskOrder, "id">) => void;
+  clearRiskOrder: (symbol: string) => void;
   resetAccount: () => void;
   totalValue: number;
   unrealizedPnL: number;
@@ -144,9 +149,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       market.stocks.forEach((stock) => { map[stock.symbol] = stock.price; });
       pricesRef.current = map;
       setStocks(market.stocks);
+      const riskManagedPortfolio = triggerRiskOrders(portfolio, map);
+      if (riskManagedPortfolio !== portfolio) updatePortfolio(riskManagedPortfolio);
     }, 15_000);
     return () => clearInterval(interval);
-  }, [ready]);
+  }, [ready, portfolio, updatePortfolio]);
 
   const setSelectedSymbol = useCallback(
     (symbol: string) => {
@@ -200,11 +207,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setTradeError(result.error);
         return result.error;
       }
-      updatePortfolio(result.portfolio);
+      const remainingPosition = result.portfolio.positions.find((position) => position.symbol === selectedSymbol);
+      updatePortfolio(remainingPosition ? result.portfolio : removeRiskOrder(result.portfolio, selectedSymbol));
       setTradeError(null);
       return null;
     },
     [portfolio, selectedSymbol, selectedStock, updatePortfolio],
+  );
+
+  const setRiskOrder = useCallback(
+    (order: Omit<RiskOrder, "id">) => {
+      updatePortfolio(saveRiskOrder(stateRef.current.portfolio, order));
+    },
+    [updatePortfolio],
+  );
+
+  const clearRiskOrder = useCallback(
+    (symbol: string) => {
+      updatePortfolio(removeRiskOrder(stateRef.current.portfolio, symbol));
+    },
+    [updatePortfolio],
   );
 
   const resetAccount = useCallback(() => {
@@ -325,6 +347,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     selectedStock,
     buy,
     sell,
+    setRiskOrder,
+    clearRiskOrder,
     resetAccount,
     totalValue,
     unrealizedPnL,

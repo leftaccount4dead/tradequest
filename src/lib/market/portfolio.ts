@@ -1,4 +1,4 @@
-import type { Portfolio, Position, Trade } from "../types";
+import type { Portfolio, Position, RiskOrder, Trade } from "../types";
 import { safeJsonParse } from "../api-client";
 import { STARTING_BALANCE } from "../constants";
 
@@ -11,6 +11,7 @@ export function createPortfolio(): Portfolio {
     trades: [],
     startingBalance: STARTING_BALANCE,
     createdAt: Date.now(),
+    riskOrders: [],
   };
 }
 
@@ -41,6 +42,42 @@ export function resetPortfolio(): Portfolio {
 
 export function getPosition(portfolio: Portfolio, symbol: string): Position | undefined {
   return portfolio.positions.find((p) => p.symbol === symbol);
+}
+
+export function setRiskOrder(portfolio: Portfolio, order: Omit<RiskOrder, "id">): Portfolio {
+  const existing = (portfolio.riskOrders ?? []).filter((item) => item.symbol !== order.symbol);
+  return {
+    ...portfolio,
+    riskOrders: [...existing, { ...order, id: crypto.randomUUID() }],
+  };
+}
+
+export function removeRiskOrder(portfolio: Portfolio, symbol: string): Portfolio {
+  return {
+    ...portfolio,
+    riskOrders: (portfolio.riskOrders ?? []).filter((order) => order.symbol !== symbol),
+  };
+}
+
+export function triggerRiskOrders(
+  portfolio: Portfolio,
+  prices: Record<string, number>,
+): Portfolio {
+  let next = portfolio;
+  for (const order of portfolio.riskOrders ?? []) {
+    const price = prices[order.symbol];
+    const position = getPosition(next, order.symbol);
+    if (price === undefined || !position) continue;
+
+    const triggered = (order.stopLoss !== undefined && price <= order.stopLoss)
+      || (order.takeProfit !== undefined && price >= order.takeProfit);
+    if (!triggered) continue;
+
+    const shares = Math.min(order.shares, position.shares);
+    const result = executeTrade(next, order.symbol, "sell", shares, price);
+    next = result.error ? next : removeRiskOrder(result.portfolio, order.symbol);
+  }
+  return next;
 }
 
 export function executeTrade(
