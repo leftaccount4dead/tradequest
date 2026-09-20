@@ -16,16 +16,16 @@ export const POSITIONING_BULLETS = [
 ] as const;
 
 /** Bump when showing a new what's-new popup to users. */
-export const LATEST_UPDATE_ID = "2025-06-live-charts";
+export const LATEST_UPDATE_ID = "2026-09-real-market-update";
 
 export const LATEST_UPDATE = {
   title: "What's new in TradeQuest",
-  date: "June 2025",
+  date: "September 2026",
   highlights: [
-    "Everyone now starts with $500 virtual cash (old $100 accounts were reset).",
-    "Classroom leaderboard — compete on return % with other learners.",
-    "Live charts — a new candlestick on every price tick so the market feels alive.",
-    "Bigger swings — sharp selloffs and rallies; a bad run can cost real (virtual) dollars on your positions.",
-    "Add to home screen on mobile for a full-screen paper-trading experience.",
+    "TradeQuest now follows delayed real-market data from recognizable stock tickers.",
+    "Fixed the fast-switching market glitch by replacing browser-side random ticks with stable server snapshots.",
+    "Added caching and a fallback snapshot so provider outages cannot make the market untradeable.",
+    "Existing accounts were reset to $500 virtual cash. Your login and guide progress were kept.",
+    "All trading is still simulated. No real money or real orders are involved.",
   ],
 };

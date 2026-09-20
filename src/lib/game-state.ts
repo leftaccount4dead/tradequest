@@ -1,6 +1,6 @@
 import type { CoachMessage, Portfolio, UserGameState } from "./types";
 import { createPortfolio } from "./market/portfolio";
-import { LEGACY_STARTING_BALANCE, STARTING_BALANCE } from "./constants";
+import { STARTING_BALANCE } from "./constants";
 
 export function getWelcomeMessage(): CoachMessage {
   return {
@@ -11,32 +11,24 @@ export function getWelcomeMessage(): CoachMessage {
   };
 }
 
-const MIGRATION_MESSAGE: CoachMessage = {
-  id: "balance-migration-500",
+const RELEASE_RESET_MESSAGE: CoachMessage = {
+  id: "real-market-release-reset-2026-09",
   role: "coach",
-  content: `TradeQuest now starts everyone with **$${STARTING_BALANCE}** virtual cash (up from $${LEGACY_STARTING_BALANCE}). Your portfolio was reset to $${STARTING_BALANCE} so you can practice position sizing at the new starting balance. Your guide progress is still saved.`,
+  content: `TradeQuest has been updated with stable delayed real-market data. Your trading account was reset to **$${STARTING_BALANCE}** virtual cash for this release. Your login and guide progress were kept, but previous portfolio positions and trades were cleared. No real money is involved.`,
   timestamp: Date.now(),
 };
-
-/** Reset legacy $100 accounts to a fresh $500 portfolio. */
-export function migratePortfolioIfNeeded(portfolio: Portfolio): Portfolio | null {
-  if (portfolio.startingBalance !== LEGACY_STARTING_BALANCE) return null;
-  return createPortfolio();
-}
 
 export function migrateGameState(state: UserGameState): {
   state: UserGameState;
   migrated: boolean;
 } {
-  const newPortfolio = migratePortfolioIfNeeded(state.portfolio);
-  if (!newPortfolio) {
+  const hasReleaseReset = state.coachMessages.some((m) => m.id === RELEASE_RESET_MESSAGE.id);
+  if (hasReleaseReset) {
     return { state, migrated: false };
   }
 
-  const hasMigrationNote = state.coachMessages.some((m) => m.id === MIGRATION_MESSAGE.id);
-  const coachMessages = hasMigrationNote
-    ? state.coachMessages
-    : [...state.coachMessages, MIGRATION_MESSAGE];
+  const newPortfolio = createPortfolio();
+  const coachMessages = [...state.coachMessages, RELEASE_RESET_MESSAGE];
 
   return {
     migrated: true,
@@ -51,7 +43,7 @@ export function migrateGameState(state: UserGameState): {
 export function createDefaultGameState(): UserGameState {
   return {
     portfolio: createPortfolio(),
-    coachMessages: [getWelcomeMessage()],
+    coachMessages: [getWelcomeMessage(), RELEASE_RESET_MESSAGE],
     readGuideIds: [],
     selectedSymbol: "AAPL",
   };
