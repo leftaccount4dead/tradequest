@@ -12,6 +12,7 @@ export function OrderPanel() {
   const [side, setSide] = useState<"buy" | "sell">("buy");
   const [shares, setShares] = useState(1);
   const [success, setSuccess] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(false);
 
   const position = getPosition(portfolio, selectedStock.symbol);
   const fillPrice = side === "buy" ? selectedStock.ask : selectedStock.bid;
@@ -69,7 +70,7 @@ export function OrderPanel() {
               : "text-[var(--text-muted)] hover:text-white",
           )}
         >
-          Buy @ Ask
+          Open long @ Ask
         </button>
         <button
           onClick={() => { setSide("sell"); clearTradeError(); }}
@@ -80,7 +81,7 @@ export function OrderPanel() {
               : "text-[var(--text-muted)] hover:text-white",
           )}
         >
-          Sell @ Bid
+          Close long @ Bid
         </button>
       </div>
 
@@ -142,8 +143,31 @@ export function OrderPanel() {
         </div>
       )}
 
+      {confirming && (
+        <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm">
+          <p className="font-semibold text-amber-300">
+            Confirm {side === "buy" ? "opening" : "closing"} {shares} {selectedStock.symbol} share{shares === 1 ? "" : "s"}?
+          </p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+            This simulated market order fills at the {side === "buy" ? "ask" : "bid"} of ${fillPrice.toFixed(2)}.
+          </p>
+          <div className="mt-3 flex gap-2">
+            <button
+              type="button"
+              onClick={() => { setConfirming(false); handleSubmit(); }}
+              className={cn("flex-1 rounded-lg py-2 text-xs font-bold text-white", side === "buy" ? "bg-emerald-500" : "bg-red-500")}
+            >
+              Confirm order
+            </button>
+            <button type="button" onClick={() => setConfirming(false)} className="flex-1 rounded-lg border border-[var(--border-subtle)] py-2 text-xs text-[var(--text-secondary)]">
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <button
-        onClick={handleSubmit}
+        onClick={() => setConfirming(true)}
         disabled={
           (side === "buy" && maxBuyShares < 1) ||
           (side === "sell" && maxSellShares < 1) ||
@@ -156,7 +180,7 @@ export function OrderPanel() {
             : "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25 border border-white/10",
         )}
       >
-        {side === "buy" ? "Buy" : "Sell"} {selectedStock.symbol} · Market
+        {side === "buy" ? "Open" : "Close"} {selectedStock.symbol} · Market
       </button>
     </GlassCard>
   );

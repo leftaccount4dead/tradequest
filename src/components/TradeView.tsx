@@ -10,6 +10,7 @@ import { MarketDepth } from "./MarketDepth";
 import { OrderPanel } from "./OrderPanel";
 import { PortfolioPanel } from "./PortfolioPanel";
 import { TradeHistory } from "./TradeHistory";
+import { ResearchPanel } from "./ResearchPanel";
 import { cn } from "@/lib/utils";
 
 type MobilePanel = "chart" | "trade" | "portfolio";
@@ -58,6 +59,7 @@ export function TradeView() {
         {mobilePanel === "chart" && (
           <div className="space-y-3">
             <TradingChart stock={selectedStock} compact />
+            <ResearchPanel stock={selectedStock} />
             <MarketDepth stock={selectedStock} />
           </div>
         )}
@@ -92,6 +94,7 @@ export function TradeView() {
       </div>
 
       <div className="lg:col-span-3 space-y-4">
+        <ResearchPanel stock={selectedStock} />
         <PortfolioPanel />
         <TradeHistory />
       </div>
