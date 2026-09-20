@@ -1,0 +1,23 @@
+{
+  "name": "TradeQuest — Learn Day Trading",
+  "short_name": "TradeQuest",
+  "description": "The $500 paper-trading classroom. Learn day trading with simulated markets, guides, and an AI coach.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f0d",
+  "theme_color": "#0a0f0d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}
