@@ -5,16 +5,18 @@ import {
   createChart,
   CandlestickSeries,
   HistogramSeries,
+  LineSeries,
   type IChartApi,
   type ISeriesApi,
   type CandlestickData,
   type HistogramData,
+  type LineData,
   ColorType,
   CrosshairMode,
 } from "lightweight-charts";
 import type { Stock, ChartTimeframe } from "@/lib/types";
 import { getChange, getSpread } from "@/lib/market/simulator";
-import { buildChartSeries } from "@/lib/chart-data";
+import { buildChartSeries, buildIndicatorData } from "@/lib/chart-data";
 import { cn } from "@/lib/utils";
 import { GlassCard } from "./ui/GlassCard";
 import { Minus, Plus, RotateCcw } from "lucide-react";
@@ -42,11 +44,13 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
   const chartRef = useRef<IChartApi | null>(null);
   const candleSeriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+  const indicatorSeriesRef = useRef<ISeriesApi<"Line">[]>([]);
   const lastBarTimeRef = useRef<number | null>(null);
   const barCountRef = useRef(0);
   const chartReadyRef = useRef(false);
   const followLiveRef = useRef(true);
   const [timeframe, setTimeframe] = useState<ChartTimeframe>("tick");
+  const [indicators, setIndicators] = useState<Array<"sma20" | "ema50" | "vwap">[]>([]);
   const [hoverOHLC, setHoverOHLC] = useState<{
     open?: number;
     high?: number;
@@ -59,7 +63,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
   const isUp = percent >= 0;
   const spread = getSpread(stock);
 
-  const seriesKey = `${stock.symbol}-${timeframe}`;
+  const seriesKey = `${stock.symbol}-${timeframe}-${indicators.join(",")}`;
   const liveKey = [
     stock.candleSeq,
     stock.price,
@@ -71,6 +75,10 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
   const chartSeries = useMemo(
     () => buildChartSeries(stock, timeframe),
     [stock, timeframe],
+  );
+  const indicatorData = useMemo(
+    () => indicators.map((indicator) => buildIndicatorData(stock, timeframe, indicator)),
+    [stock, timeframe, indicators],
   );
 
   // Create chart once per symbol/timeframe
@@ -145,6 +153,25 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
       scaleMargins: { top: 0.82, bottom: 0 },
     });
 
+    const colorsByIndicator: Record<string, string> = {
+      sma20: "#f59e0b",
+      ema50: "#38bdf8",
+      vwap: "#c084fc",
+    };
+    const indicatorSeries = indicators.map((indicator, index) => {
+      const series = chart.addSeries(LineSeries, {
+        color: colorsByIndicator[indicator],
+        lineWidth: 2,
+        priceLineVisible: false,
+        lastValueVisible: false,
+        title: indicator.toUpperCase(),
+      });
+      const data = buildIndicatorData(stock, timeframe, indicator);
+      if (data.length > 0) series.setData(data);
+      return series;
+    });
+    indicatorSeriesRef.current = indicatorSeries;
+
     const { candleData, volumeData } = buildChartSeries(stock, timeframe);
     if (candleData.length > 0) {
       candleSeries.setData(candleData);
@@ -201,6 +228,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
       chartRef.current = null;
       candleSeriesRef.current = null;
       volumeSeriesRef.current = null;
+      indicatorSeriesRef.current = [];
       chartReadyRef.current = false;
       lastBarTimeRef.current = null;
     };
@@ -214,6 +242,11 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
 
     const { candleData, volumeData } = chartSeries;
     if (candleData.length === 0) return;
+
+    indicatorSeriesRef.current.forEach((series, index) => {
+      const data = indicatorData[index] as LineData[];
+      series.setData(data);
+    });
 
     const lastCandle = candleData[candleData.length - 1];
     const lastVol = volumeData[volumeData.length - 1];
@@ -252,7 +285,7 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
       lastBarTimeRef.current = lastTime;
       barCountRef.current = candleData.length;
     }
-  }, [liveKey, chartSeries]);
+  }, [liveKey, chartSeries, indicatorData]);
 
   const fitChart = () => {
     followLiveRef.current = true;
@@ -356,6 +389,30 @@ export function TradingChart({ stock, compact = false }: { stock: Stock; compact
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 overflow-x-auto border-b border-[var(--border-subtle)] px-2 py-1.5 sm:px-4">
+        <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Indicators</span>
+        {([
+          ["sma20", "SMA 20", "text-amber-500"],
+          ["ema50", "EMA 50", "text-sky-500"],
+          ["vwap", "VWAP", "text-purple-500"],
+        ] as const).map(([id, label, color]) => {
+          const active = indicators.includes(id);
+          return (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setIndicators((current) => active ? current.filter((item) => item !== id) : [...current, id])}
+              className={cn(
+                "shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold transition",
+                active ? `bg-[var(--bg-elevated)] ${color}` : "text-[var(--text-muted)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]",
+              )}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       <div
